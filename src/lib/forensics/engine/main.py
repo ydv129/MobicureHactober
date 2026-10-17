@@ -1,5 +1,4 @@
 import io
-import os
 import numpy as np
 from PIL import Image, ExifTags
 from fastapi import FastAPI, UploadFile, File
@@ -10,7 +9,15 @@ app = FastAPI(title="MobiCure Forensics Light v2")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 HF_API_URL = "https://api-inference.huggingface.co/models/umm-maybe/AI-image-detector"
-CLIP_API_URL = "https://api-inference.huggingface.co/models/openai/clip-vit-base-patch32"
+
+def call_ollama(prompt: str) -> str:
+    try:
+        response = requests.post("http://127.0.0.1:11434/api/generate", json={"model": "tinyllama", "prompt": prompt, "stream": False, "options": {"temperature": 0.2, "num_predict": 150}}, timeout=15)
+        if response.ok:
+            return response.json().get("response", "")[:300]
+    except Exception:
+        pass
+    return "Ollama offline"
 
 def get_exif_data(img):
     try:
@@ -31,8 +38,8 @@ def analyze_metadata(img, exif):
         if tag in exif:
             warnings.append(f"Edited: {tag}={exif[tag][:50]}")
             score -= 25
-    if "【entity-Adobe¦canonical_name=Adobe】" in str(exif) or "【entity-Photoshop¦canonical_name=Photoshop】" in str(exif):
-        warnings.append("【entity-Photoshop¦canonical_name=Photoshop】 signature found")
+    if "Adobe" in str(exif) or "Photoshop" in str(exif):
+        warnings.append("Image editor signature found")
         score -= 20
     return max(0, score), warnings
 
@@ -102,8 +109,7 @@ def models_status():
     return {
         "pixel_forensics": "local-numpy",
         "metadata": "local-pillow",
-        "ai_detector": "hf-api: umm-maybe/AI-image-detector + fallback clip",
-        "trufor": "planned-onnx-120MB"
+        "ai_detector": "hf-api: umm-maybe/AI-image-detector + local Ollama"
     }
 
 @app.post("/scan")

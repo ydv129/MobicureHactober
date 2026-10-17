@@ -7,6 +7,7 @@ export default function ForensicsTerminal({ data }: { data: any }) {
     ["metadata", `${data.forensics?.metadata_score ?? 0}/100`],
     ["pixel-pass", `mean ${Number(stats.mean_var || 0).toFixed(1)} / std ${Number(stats.std_var || 0).toFixed(1)}`],
     ["ai-signal", data.forensics?.ai_score ? `${data.forensics.ai_score.toFixed(1)}/100` : "fallback heuristics"],
+    ...(data.details?.ai_analysis ? [["ollama", data.details.ai_analysis]] : []),
   ]
 
   return <section className="terminal" aria-label="Forensics analysis log">

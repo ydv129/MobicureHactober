@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-for port in 8004 3000; do
-  lsof -ti:"$port" | xargs -r kill -9
+for port in 3000 8004; do
+	fuser -k "${port}/tcp" >/dev/null 2>&1 || true
 done
