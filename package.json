@@ -1,0 +1,26 @@
+{
+  "name": "MobicureHactober",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "predev": "./kill.sh",
+    "dev": "concurrently \"python src/lib/forensics/engine/main.py\" \"./node_modules/.bin/next dev --port 3000\" --names \"ENGINE,WEB\" --prefix-colors \"cyan,yellow\"",
+    "dev:engine": "python src/lib/forensics/engine/main.py",
+    "dev:web": "./node_modules/.bin/next dev --port 3000"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.17.30",
+    "@types/react": "^18.3.20",
+    "@types/react-dom": "^18.3.7",
+    "concurrently": "^10.0.6",
+    "next": "^14.2.33",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.7.3"
+  }
+}
