@@ -1,0 +1,6 @@
+{
+  "rules": {
+    "correctness": "error"
+  },
+  "ignorePatterns": ["node_modules", ".next", "dist", "build"]
+}

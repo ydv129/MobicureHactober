@@ -1,9 +1,20 @@
+version: "3.8"
 services:
-  image-scanner:
+  app:
     build: .
-    command: python lib/forensics/engine/main.py
-    ports: ["8004:8004"]
-  apk-analyzer:
-    build: .
-    command: python services/apk-analyzer/apk_analyzer_service.py
-    ports: ["8003:8003"]
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.local
+    environment:
+      NODE_ENV: production
+    restart: unless-stopped
+  python-apk:
+    image: python:3.11-slim
+    working_dir: /services
+    volumes:
+      - ./services:/services
+    command: bash -c "pip install -r requirements.txt && python apk_analyzer_service.py"
+    ports:
+      - "8001:8001"
+    restart: unless-stopped

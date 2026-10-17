@@ -1,0 +1,20 @@
+export const siteConfig = {
+  name: "MOBICURE",
+  title: "MOBICURE - Advanced Cybersecurity Command Center & Threat Forensics",
+  description: "Enterprise-grade client-side cybersecurity suite, real-time network forensics, zero-knowledge encrypted vault, and tactical diagnostics.",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+  creator: "Neeraj Yadav",
+  keywords: [
+    "mobicure",
+    "cybersecurity command center",
+    "zero-knowledge vault",
+    "network forensics",
+    "bandwidth tachometer",
+    "malware scanner",
+    "vulnerability scanner",
+    "apk analyzer",
+    "phishing detector",
+    "security tools",
+    "threat detection",
+  ],
+}

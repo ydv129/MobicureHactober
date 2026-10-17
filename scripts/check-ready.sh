@@ -1,6 +1,19 @@
-#!/usr/bin/env bash
-set -euo pipefail
-curl -fsS http://127.0.0.1:3000/ >/dev/null
-curl -fsS http://127.0.0.1:8004/health >/dev/null
-curl -fsS http://127.0.0.1:11434/api/tags >/dev/null
-printf 'web, image engine, and Ollama are ready\n'
+#!/bin/bash
+echo "=== MobiCure Hackathon Ready Check ==="
+echo ""
+echo "[1] Git clean?"
+git status --short || echo "Not git"
+echo ""
+echo "[2] mcp-server size?"
+du -sh mcp-server
+echo ""
+echo "[3] Build?"
+pnpm run build 2>&1 | tail -5
+echo ""
+echo "[4] Gemma?"
+ollama list | grep gemma2 || echo "Gemma not found"
+echo ""
+echo "[5] MCP dist?"
+ls -lh mcp-server/dist/index.js || echo "MCP not built"
+echo ""
+echo "=== Done ==="

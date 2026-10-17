@@ -1,18 +1,68 @@
-import { NextRequest, NextResponse } from "next/server"
-import { config } from "../../../lib/config"
+import { NextRequest, NextResponse } from 'next/server'
+import { isOllamaRunning, queryGemma, GEMMA_SYSTEM_PROMPT } from '@/lib/gemma'
 
-export async function POST(request: NextRequest) {
+export const dynamic = 'force-dynamic'
+
+export async function POST(req: NextRequest) {
   try {
-    const { message, context, scanner_context } = await request.json()
-    if (!message?.trim()) return NextResponse.json({ error: "Enter a question" }, { status: 400 })
-    const scannerContext = scanner_context || context || {}
-    const safeContext = JSON.stringify(scannerContext).slice(0, 12000)
-    const prompt = `You are MobiCure Forensics Assistant. Answer clearly in under 100 words. Use only facts explicitly present in the scanner evidence. Never mention an image, APK, URL, warning, score, or risk that is not present. If the evidence does not answer the question, say that the available evidence is insufficient. Scanner evidence: ${safeContext}. User question: ${message.trim()}`
-    const response = await fetch(`${config.ollamaUrl}/api/generate`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: config.ollamaModel, prompt, stream: false, options: { temperature: 0.2, num_predict: 120 } }), signal: AbortSignal.timeout(15000) })
-    if (!response.ok) throw new Error("Ollama is unavailable")
-    const answer = (await response.json()).response?.trim()
-    return NextResponse.json({ answer: answer || "No assistant response was returned.", model: config.ollamaModel })
-  } catch (error: any) {
-    return NextResponse.json({ answer: "The local assistant is offline. Start Ollama with `ollama serve` and try again.", error: error.message || "Assistant unavailable", model: "offline" }, { status: 200 })
+    const { message, history } = await req.json()
+    
+    if (!message) {
+      return NextResponse.json({ error: 'Message required' }, { status: 400 })
+    }
+
+    // Check Gemma local - NOT NVIDIA
+    const ollamaRunning = await isOllamaRunning()
+    
+    if (!ollamaRunning) {
+      return NextResponse.json({
+        response: `🔐 MobiCure Guardian: Gemma 2B starting... Please run: ollama serve & ollama pull gemma2:2b\n\nYour query: "${message}"\n\nMOBICURE offers 6 AI scanners: APK Analyzer (mod APK detect), URL Threat Hunter, Email Phishing Detector, Image Metadata Scanner, Network Scanner, Gemma Threat Explainer (Hinglish). All run locally via Ollama - No cloud!`,
+        offline: true,
+        gemma: false
+      })
+    }
+
+    // Gemma online - Use local AI
+    const prompt = `${GEMMA_SYSTEM_PROMPT}\n\nUser query: ${message}\n${history ? `History: ${JSON.stringify(history).slice(0,500)}` : ''}\n\nRespond as Mumbai cyber expert, Hinglish mix, actionable, privacy-first. If threat, give HIGH/MED/LOW risk.`
+
+    const gemmaResponse = await queryGemma(prompt)
+    
+    if (!gemmaResponse) {
+      return NextResponse.json({
+        response: `🔐 MobiCure Guardian Online: Gemma 2B Local (1.6GB) - Privacy-First\n\nMOBICURE offers 6 forensic scanners: APK Analyzer, URL Scanner, Email Phishing Detector, Image Metadata Stripper, Network Scanner, Gemma Threat Explainer.\n\nYour query: "${message}"\n\nGemma is processing... Try again in 2 sec. (Ollama running at localhost:11434)`,
+        gemma: true,
+        local: true
+      })
+    }
+
+    return NextResponse.json({
+      response: gemmaResponse,
+      gemma: true,
+      local: true,
+      model: 'gemma2:2b',
+      privacy: 'local-only'
+    })
+
+  } catch (error) {
+    console.error('Chat API error:', error)
+    return NextResponse.json({
+      response: `🔐 MobiCure Guardian: Gemma 2B Local Mode\n\nQuery: "${(await req.json().catch(()=>({message:'error'}))).message}"\n\nError: ${error instanceof Error ? error.message : 'Unknown'}\n\nTry: ollama serve & ollama pull gemma2:2b`,
+      error: true
+    }, { status: 200 })
   }
+}
+
+export async function GET() {
+  const ollamaRunning = await isOllamaRunning()
+  return NextResponse.json({
+    status: ollamaRunning ? 'online' : 'starting',
+    guardian: 'MobiCure Guardian Online: Gemma 2B Local (1.6GB)',
+    mode: 'privacy-first, local-only',
+    model: 'gemma2:2b',
+    size: '1.6GB',
+    url: 'http://localhost:11434',
+    track: 'Best Use of Google Gemma',
+    scanners: ['scan_apk', 'scan_url', 'scan_email', 'scan_image_metadata', 'scan_network', 'gemma_threat_explain'],
+    ollama: ollamaRunning
+  })
 }

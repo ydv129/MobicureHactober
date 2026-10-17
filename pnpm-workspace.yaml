@@ -1,4 +1,6 @@
 packages:
-  - "mcp-server"
+    - '.'
+    - 'mcp-server'
 allowBuilds:
-  unrs-resolver: set this to true or false
+  esbuild: true
+  unrs-resolver: true

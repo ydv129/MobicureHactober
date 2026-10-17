@@ -1,0 +1,29 @@
+# Dependencies & build output
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# Python caches & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+mobicure/
+
+# Local logs and environment files
+*.log
+*.pid
+.env*
+!.env.example
+
+# Git & IDE files
+.git/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+tsconfig.tsbuildinfo

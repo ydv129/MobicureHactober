@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "kill": "pkill -9 -f 'next dev' 2>/dev/null; rm -rf .next; echo 'Killed + Cleared'",
+    "dev": "next dev --port 3000",
+    "kill:dev": "pkill -9 -f 'next dev' 2>/dev/null; rm -rf .next; next dev --port 3000",
+    "fresh": "pkill -9 -f 'next dev' 2>/dev/null; rm -rf .next; next dev --port 3000"
+  }
+}

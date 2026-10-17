@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
-exec python "$(dirname "$0")/apk_analyzer_service.py"
+set -e
+cd "$(dirname "$0")"
+pip install -q -r requirements.txt
+exec python3 apk_analyzer_service.py
