@@ -1,34 +1,27 @@
 {
-  "name": "MobicureHactober",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "mobicure-forensics",
+  "version": "2.0.0-light",
+  "private": true,
+  "description": "MobiCure Forensics v2 Light - Hybrid Image + URL + APK Forensics Lab <400MB",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "next lint",
     "predev": "./kill.sh",
-    "dev": "concurrently \"python lib/forensics/engine/main.py\" \"python services/apk-analyzer/apk_analyzer_service.py\" \"./node_modules/.bin/next dev --port 3000\" --names \"IMAGE,APK,WEB\" --prefix-colors \"cyan,magenta,yellow\"",
-    "devstart": "pnpm run dev",
-    "dev:engine": "python lib/forensics/engine/main.py",
-    "dev:web": "./node_modules/.bin/next dev --port 3000"
+    "dev": "concurrently \"python src/lib/forensics/engine/main.py\" \"./node_modules/.bin/next dev --port 3000\" --names \"ENGINE,WEB\" --prefix-colors \"cyan,yellow\"",
+    "dev:engine": "python src/lib/forensics/engine/main.py",
+    "dev:web": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "lint": "next lint"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4.3.3",
-    "@types/node": "^20.17.30",
-    "@types/react": "^18.3.20",
-    "@types/react-dom": "^18.3.7",
-    "autoprefixer": "^10.6.1",
-    "concurrently": "^10.0.6",
-    "eslint": "^8.57.1",
-    "eslint-config-next": "^14.2.33",
-    "next": "^14.2.33",
-    "postcss": "^8.5.30",
+  "dependencies": {
+    "next": "14.2.35",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "tailwindcss": "^4.3.3",
-    "typescript": "^5.7.3"
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.3"
   }
 }
