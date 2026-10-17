@@ -1,0 +1,1 @@
+export default function FindingsList({ findings }: { findings: string[] }) { return findings.length ? <ul>{findings.map((item, index) => <li key={index}>{item}</li>)}</ul> : <p>No findings reported.</p> }

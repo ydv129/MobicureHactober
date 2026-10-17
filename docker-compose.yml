@@ -1,0 +1,9 @@
+services:
+  image-scanner:
+    build: .
+    command: python lib/forensics/engine/main.py
+    ports: ["8004:8004"]
+  apk-analyzer:
+    build: .
+    command: python services/apk-analyzer/apk_analyzer_service.py
+    ports: ["8003:8003"]
