@@ -44,6 +44,6 @@ export async function POST(request: NextRequest) {
     const ai = await askOllama(normalizedUrl)
     const score = Math.round(heuristics.score * 0.6 + ai.score * 0.4)
     const classification = score >= 80 ? "LEGIT" : score >= 60 ? "SUSPICIOUS" : score >= 40 ? "RISKY" : "PHISHING"
-    return NextResponse.json({ legitimacy_score: score, classification, warnings: heuristics.warnings, forensics: { url_score: heuristics.urlScore, domain_score: heuristics.domainScore, ai_score: ai.score }, details: { url: normalizedUrl, heuristics, ai_analysis: ai.text, ollama_model: ai.model } })
-  } catch (error: any) { return NextResponse.json({ error: error.message || "URL scan failed", legitimacy_score: 0, classification: "ERROR", warnings: ["Website scan failed"], forensics: { url_score: 0, domain_score: 0, ai_score: 0 } }, { status: 500 }) }
+    return NextResponse.json({ legitimacy_score: score, classification, analysis_mode: "heuristic", external_intelligence: { virustotal: "unavailable", urlscan: "unavailable", abusech: "unavailable" }, warnings: [...heuristics.warnings, "External threat intelligence is unavailable; local URL heuristics were used."], forensics: { url_score: heuristics.urlScore, domain_score: heuristics.domainScore, ai_score: ai.score }, details: { url: normalizedUrl, heuristics, ai_analysis: ai.text, ollama_model: ai.model } })
+  } catch (error: any) { return NextResponse.json({ error: error.message || "URL scan failed", legitimacy_score: 0, classification: "ERROR", analysis_mode: "failed", external_intelligence: { virustotal: "unavailable", urlscan: "unavailable", abusech: "unavailable" }, warnings: ["Website scan failed"], forensics: { url_score: 0, domain_score: 0, ai_score: 0 } }, { status: 500 }) }
 }

@@ -15,7 +15,7 @@ ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "bmp", "tiff", "webp"}
 def call_ollama(prompt: str) -> str:
     try:
         base_url = os.getenv("OLLAMA_URL", "http://127.0.0.1:11434")
-        model = os.getenv("OLLAMA_MODEL", "tinyllama")
+        model = os.getenv("OLLAMA_MODEL", "gemma3:1b")
         response = requests.post(f"{base_url}/api/generate", json={"model": model, "prompt": prompt, "stream": False, "options": {"temperature": 0.2, "num_predict": 150}}, timeout=15)
         if response.ok:
             return response.json().get("response", "")[:300]

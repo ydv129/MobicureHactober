@@ -23,7 +23,7 @@ export default function UrlScanner({ onResult }: Props) {
     <span className="drop-zone__orb">◉</span>
     <span className="eyebrow">Website URL / 02</span>
     <strong style={{ fontSize: "28px", fontWeight: 400, margin: "14px 0 8px" }}>Paste a URL to inspect</strong>
-    <span className="drop-zone__hint">HTTPS, domain reputation, and Ollama gemma3:1b analysis.</span>
+    <span className="drop-zone__hint">HTTPS, domain reputation, and local Ollama analysis.</span>
     <div style={{ width: "100%", maxWidth: 340, marginTop: 18, display: "flex", gap: 8 }}>
       <input value={url} onChange={(event) => { setUrl(event.target.value); setError("") }} placeholder="https://example.com/login" style={{ flex: 1, background: "#0a0a0a", border: "1px solid #3f3f46", borderRadius: 12, padding: "12px 14px", color: "#fff", font: "11px monospace", outline: "none" }} />
       <button onClick={scan} disabled={loading} style={{ background: valid ? "#58e7e0" : "#27272a", color: valid ? "#0a0a0b" : "#71717a", border: "none", borderRadius: 12, padding: "12px 16px", font: "11px monospace", cursor: valid ? "pointer" : "not-allowed" }}>{loading ? "..." : "Scan"}</button>
