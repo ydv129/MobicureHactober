@@ -2,7 +2,7 @@
   "name": "mobicure",
   "version": "1.0.0",
   "description": "Enterprise-grade client-side cybersecurity suite, real-time network forensics, zero-knowledge encrypted vault, and tactical diagnostics.",
-  "author": "Neeraj Yadav",
+  "author": "",
   "license": "MIT",
   "private": true,
   "type": "module",

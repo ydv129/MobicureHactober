@@ -86,7 +86,7 @@ export default function ContactPage() {
                   <User className="h-6 w-6 text-green-400 animate-pulse" />
                   <div>
                     <h3 className="text-lg font-semibold text-cyan-400">Developer</h3>
-                    <p className="text-gray-300">NEERAJ YADAV</p>
+                    <p className="text-gray-300"></p>
                   </div>
                 </div>
 

@@ -168,7 +168,7 @@ export function SiteFooter() {
           <div>
             Lead Architect & Engineer:{" "}
             <span className="text-cyan-300 font-bold tracking-wide">
-              NEERAJ YADAV
+              
             </span>{" "}
             • All Rights Reserved
           </div>

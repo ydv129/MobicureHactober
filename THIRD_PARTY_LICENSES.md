@@ -1,6 +1,6 @@
 # Third-Party Open Source Software Notices & Attributions
 
-This project, **MOBICURE**, is authored and owned by **Neeraj Yadav**. MOBICURE incorporates, links against, or is built upon open-source software libraries and frameworks. We gratefully acknowledge the creators and maintainers of these tools.
+This project, **MOBICURE**, is authored and owned by ****. MOBICURE incorporates, links against, or is built upon open-source software libraries and frameworks. We gratefully acknowledge the creators and maintainers of these tools.
 
 Below is an itemized attribution and license notice for all open-source packages utilized in accordance with their respective distribution terms.
 

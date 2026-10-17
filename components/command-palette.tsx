@@ -201,7 +201,7 @@ export function CommandPalette() {
     {
       id: "nav-about",
       title: "About MOBICURE Platform",
-      subtitle: "Lead Architect Neeraj Yadav & defense specs",
+      subtitle: "Lead Architect  & defense specs",
       category: "Navigation",
       icon: HelpCircle,
       action: () => {
