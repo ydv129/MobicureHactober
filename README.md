@@ -29,19 +29,23 @@ The engine deliberately does not use `torch`, `transformers`, `clip`, or `facene
 ## Project Structure
 
 ```text
-src/
+app/
 ├── app/
 │   ├── api/scan/route.ts       # Browser-to-engine adapter
 │   ├── globals.css             # Dark forensic lab interface
 │   ├── layout.tsx
 │   └── page.tsx
-├── components/forensics/
+components/forensics/
 │   ├── DropZone.tsx
 │   ├── ForensicsTerminal.tsx
 │   └── VerdictRing.tsx
-└── lib/forensics/engine/
-		├── main.py                 # FastAPI service on port 8004
-		└── requirements.txt
+lib/forensics/engine/
+    ├── main.py                 # FastAPI service on port 8004
+    └── requirements.txt
+services/
+├── apk-analyzer/               # Androguard service on port 8003
+└── url_threat_scanner_service.py
+mcp-server/                     # Service-aware MCP entrypoint
 ```
 
 ## Requirements
@@ -63,7 +67,7 @@ Install the lightweight Python engine dependencies:
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -r src/lib/forensics/engine/requirements.txt
+pip install -r lib/forensics/engine/requirements.txt
 ```
 
 Start both services from one terminal:
@@ -72,7 +76,9 @@ Start both services from one terminal:
 pnpm run dev
 ```
 
-The web interface is available at [http://localhost:3000](http://localhost:3000). The engine listens on port `8004`. `pnpm run dev` clears both ports before starting, and `./kill.sh` stops services manually.
+The web interface is available at [http://localhost:3000](http://localhost:3000). The image engine listens on `8004`, and the APK service listens on `8003`. `pnpm run dev` starts both services and the web app. `./kill.sh` stops application ports without stopping Ollama.
+
+APK analysis is service-backed and requires the optional `androguard` dependency. If it is unavailable, the API returns a service error instead of a fabricated security report.
 
 ## How Analysis Works
 
