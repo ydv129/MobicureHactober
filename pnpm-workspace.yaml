@@ -1,2 +1,4 @@
 packages:
   - "mcp-server"
+allowBuilds:
+  unrs-resolver: set this to true or false

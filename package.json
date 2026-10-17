@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "next lint",
     "predev": "./kill.sh",
     "dev": "concurrently \"python lib/forensics/engine/main.py\" \"python services/apk-analyzer/apk_analyzer_service.py\" \"./node_modules/.bin/next dev --port 3000\" --names \"IMAGE,APK,WEB\" --prefix-colors \"cyan,magenta,yellow\"",
     "devstart": "pnpm run dev",
@@ -21,6 +22,8 @@
     "@types/react-dom": "^18.3.7",
     "autoprefixer": "^10.6.1",
     "concurrently": "^10.0.6",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.33",
     "next": "^14.2.33",
     "postcss": "^8.5.30",
     "react": "^18.3.1",
