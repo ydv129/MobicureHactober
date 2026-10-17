@@ -1,5 +1,4 @@
 "use client"
-
 import { useState } from "react"
 
 type Props = { onResult: (data: any) => void }
@@ -9,25 +8,30 @@ export default function UrlScanner({ onResult }: Props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const valid = /^https?:\/\/[^\s]+$/i.test(url.trim())
-
   const scan = async () => {
-    if (!valid) { setError("Enter a valid website URL starting with http:// or https://"); return }
+    if (!valid) { setError("Enter valid URL http:// or https://"); return }
     setError(""); setLoading(true)
     try {
       const response = await fetch("/api/scan-url", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: url.trim() }) })
       const data = await response.json()
-      if (!response.ok) throw new Error(data.error || "Website scan failed")
+      if (!response.ok) throw new Error(data.error)
       onResult(data)
-    } catch (scanError: any) { setError(scanError.message || "Website scan failed")
-    } finally { setLoading(false) }
+    } catch (scanError: any) { setError(scanError.message) } finally { setLoading(false) }
   }
-
-  const chip = (label: string, active: boolean) => <span style={{ background: active ? "#123b3b" : "#18181b", border: `1px solid ${active ? "#2f8f8a" : "#27272a"}`, borderRadius: 999, padding: "5px 9px", font: "9px monospace", color: active ? "#8ff7ef" : "#71717a" }}>{label}</span>
-  return <div style={{ background: "rgba(24,24,27,.72)", border: "1px solid #3f3f46", borderRadius: 24, padding: 24 }}>
-    <span className="eyebrow">Website URL / remote analysis</span>
-    <input type="url" value={url} onChange={(event) => { setUrl(event.target.value); setError("") }} placeholder="https://example.com/login" style={{ width: "100%", marginTop: 18, padding: 14, borderRadius: 14, border: "1px solid #3f3f46", background: "#0a0a0a", color: "#fff", font: "12px monospace" }} />
-    <button onClick={scan} disabled={loading} style={{ width: "100%", marginTop: 12, padding: 14, border: 0, borderRadius: 14, color: "#09090b", cursor: loading ? "wait" : "pointer", background: "linear-gradient(100deg,#58e7e0,#e88bff)", font: "12px monospace" }}>{loading ? "Analyzing website..." : "Scan URL"}</button>
-    <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginTop: 16 }}>{chip("HTTPS check", /^https:\/\//i.test(url))}{chip("Domain heuristics", valid)}{chip("Ollama AI", true)}</div>
-    {error && <p style={{ color: "#ff9f9f", font: "11px monospace", marginBottom: 0 }}>{error}</p>}
+  return <div className="drop-zone" style={{ cursor: "default" }}>
+    <span className="drop-zone__orb">◉</span>
+    <span className="eyebrow">Website URL / 02</span>
+    <strong style={{ fontSize: "28px", fontWeight: 400, margin: "14px 0 8px" }}>Paste a URL to inspect</strong>
+    <span className="drop-zone__hint">HTTPS, domain reputation, and Ollama gemma3:1b analysis.</span>
+    <div style={{ width: "100%", maxWidth: 340, marginTop: 18, display: "flex", gap: 8 }}>
+      <input value={url} onChange={(event) => { setUrl(event.target.value); setError("") }} placeholder="https://example.com/login" style={{ flex: 1, background: "#0a0a0a", border: "1px solid #3f3f46", borderRadius: 12, padding: "12px 14px", color: "#fff", font: "11px monospace", outline: "none" }} />
+      <button onClick={scan} disabled={loading} style={{ background: valid ? "#58e7e0" : "#27272a", color: valid ? "#0a0a0b" : "#71717a", border: "none", borderRadius: 12, padding: "12px 16px", font: "11px monospace", cursor: valid ? "pointer" : "not-allowed" }}>{loading ? "..." : "Scan"}</button>
+    </div>
+    <div style={{ display: "flex", gap: 6, marginTop: 14, flexWrap: "wrap", justifyContent: "center" }}>
+      <span style={{ background: "rgba(88,231,224,.12)", border: "1px solid #58e7e055", borderRadius: 999, padding: "4px 8px", font: "9px monospace", color: "#58e7e0" }}>HTTPS</span>
+      <span style={{ background: "rgba(88,231,224,.12)", border: "1px solid #58e7e055", borderRadius: 999, padding: "4px 8px", font: "9px monospace", color: "#58e7e0" }}>Domain</span>
+      <span style={{ background: "rgba(232,139,255,.12)", border: "1px solid #e88bff55", borderRadius: 999, padding: "4px 8px", font: "9px monospace", color: "#e88bff" }}>Gemma 1B</span>
+    </div>
+    {error && <span style={{ color: "#ff9f9f", font: "11px monospace", marginTop: 12 }}>{error}</span>}
   </div>
 }

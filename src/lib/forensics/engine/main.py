@@ -9,7 +9,8 @@ app = FastAPI(title="MobiCure Forensics Light v2")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 HF_API_URL = "https://api-inference.huggingface.co/models/umm-maybe/AI-image-detector"
-
+MAX_UPLOAD_BYTES = 50 * 1024 * 1024
+ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "bmp", "tiff", "webp"}
 def call_ollama(prompt: str) -> str:
     try:
         response = requests.post("http://127.0.0.1:11434/api/generate", json={"model": "tinyllama", "prompt": prompt, "stream": False, "options": {"temperature": 0.2, "num_predict": 150}}, timeout=15)
@@ -81,6 +82,18 @@ def pixel_forensics_single_pass(img):
     except Exception as e:
         return 50, [f"Pixel analysis error: {str(e)[:100]}"], {}
 
+def image_stats(img):
+    arr = np.asarray(img.convert("RGB"), dtype=np.float32)
+    gray = np.mean(arr, axis=2)
+    dx = np.abs(np.diff(gray, axis=1))
+    dy = np.abs(np.diff(gray, axis=0))
+    return {
+        "width": img.width,
+        "height": img.height,
+        "brightness": round(float(gray.mean()), 2),
+        "contrast": round(float(gray.std()), 2),
+        "edge_density": round(float((np.mean(dx > 20) + np.mean(dy > 20)) / 2), 4),
+    }
 def check_ai_via_hf(image_bytes):
     try:
         resp = requests.post(HF_API_URL, data=image_bytes, timeout=8)
@@ -116,8 +129,16 @@ def models_status():
 async def scan_image(file: UploadFile = File(...)):
     try:
         content = await file.read()
+        extension = (file.filename or "").lower().rsplit(".", 1)[-1]
+        if extension not in ALLOWED_EXTENSIONS:
+            return {"error": "Unsupported image type", "legitimacy_score": 0, "classification": "ERROR", "warnings": ["Use JPG, PNG, BMP, TIFF, or WEBP"]}
+        if len(content) > MAX_UPLOAD_BYTES:
+            return {"error": "Image exceeds 50 MB", "legitimacy_score": 0, "classification": "ERROR", "warnings": ["File is too large"]}
+        source = Image.open(io.BytesIO(content))
+        source.verify()
         img = Image.open(io.BytesIO(content)).convert("RGB")
-        exif = get_exif_data(Image.open(io.BytesIO(content)))
+        exif = get_exif_data(img)
+        stats = image_stats(img)
         
         meta_score, meta_warn = analyze_metadata(img, exif)
         pixel_score, pixel_warn, pixel_stats = pixel_forensics_single_pass(img)
@@ -156,7 +177,8 @@ async def scan_image(file: UploadFile = File(...)):
                 "pixel_score": pixel_score,
                 "ai_score": ai_score,
                 "exif_count": len(exif),
-                "pixel_stats": pixel_stats
+                "pixel_stats": pixel_stats,
+                "image_stats": stats
             },
             "exif": {k: v for k, v in list(exif.items())[:15]},
             "engine": "v2-light-hybrid"
