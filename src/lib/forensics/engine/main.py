@@ -1,4 +1,5 @@
 import io
+import os
 import numpy as np
 from PIL import Image, ExifTags
 from fastapi import FastAPI, UploadFile, File
@@ -13,7 +14,9 @@ MAX_UPLOAD_BYTES = 50 * 1024 * 1024
 ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "bmp", "tiff", "webp"}
 def call_ollama(prompt: str) -> str:
     try:
-        response = requests.post("http://127.0.0.1:11434/api/generate", json={"model": "tinyllama", "prompt": prompt, "stream": False, "options": {"temperature": 0.2, "num_predict": 150}}, timeout=15)
+        base_url = os.getenv("OLLAMA_URL", "http://127.0.0.1:11434")
+        model = os.getenv("OLLAMA_MODEL", "tinyllama")
+        response = requests.post(f"{base_url}/api/generate", json={"model": model, "prompt": prompt, "stream": False, "options": {"temperature": 0.2, "num_predict": 150}}, timeout=15)
         if response.ok:
             return response.json().get("response", "")[:300]
     except Exception:

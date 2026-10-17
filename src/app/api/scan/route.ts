@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { config } from '../../../lib/config'
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,7 +10,7 @@ export async function POST(req: NextRequest) {
     const fd = new FormData()
     fd.append('file', file)
 
-    const res = await fetch('http://localhost:8004/scan', { method: 'POST', body: fd })
+    const res = await fetch(`${config.imageScannerUrl}/scan`, { method: 'POST', body: fd, signal: AbortSignal.timeout(30000) })
     const data = await res.json()
     return NextResponse.json(data)
   } catch (e: any) {

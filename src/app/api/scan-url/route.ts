@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
+import { config } from "../../../lib/config"
 
-const model = "tinyllama"
+const model = config.ollamaModel
 
 function analyzeUrlHeuristics(value: string) {
   const warnings: string[] = []
@@ -25,7 +26,7 @@ function analyzeUrlHeuristics(value: string) {
 
 async function askOllama(url: string) {
   try {
-    const response = await fetch("http://127.0.0.1:11434/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model, prompt: `Analyze the legitimacy of this website URL: ${url}. Return only JSON with risk low, medium, or high, reason, and score from 0 to 100 where 100 means legitimate.`, stream: false, options: { temperature: 0.2, num_predict: 150 } }), signal: AbortSignal.timeout(15000) })
+    const response = await fetch(`${config.ollamaUrl}/api/generate`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model, prompt: `Analyze the legitimacy of this website URL: ${url}. Return only JSON with risk low, medium, or high, reason, and score from 0 to 100 where 100 means legitimate.`, stream: false, options: { temperature: 0.2, num_predict: 150 } }), signal: AbortSignal.timeout(15000) })
     const text = (await response.json()).response || ""
     const match = text.match(/\{[\s\S]*\}/)
     if (!match) return { score: 50, text: text.slice(0, 300), model }
@@ -38,10 +39,11 @@ export async function POST(request: NextRequest) {
   try {
     const { url } = await request.json()
     if (!url || typeof url !== "string") return NextResponse.json({ error: "No URL", legitimacy_score: 0, classification: "ERROR" }, { status: 400 })
-    const heuristics = analyzeUrlHeuristics(url)
-    const ai = await askOllama(url)
+    const normalizedUrl = /^https?:\/\//i.test(url.trim()) ? url.trim() : `https://${url.trim()}`
+    const heuristics = analyzeUrlHeuristics(normalizedUrl)
+    const ai = await askOllama(normalizedUrl)
     const score = Math.round(heuristics.score * 0.6 + ai.score * 0.4)
     const classification = score >= 80 ? "LEGIT" : score >= 60 ? "SUSPICIOUS" : score >= 40 ? "RISKY" : "PHISHING"
-    return NextResponse.json({ legitimacy_score: score, classification, warnings: heuristics.warnings, forensics: { url_score: heuristics.urlScore, domain_score: heuristics.domainScore, ai_score: ai.score }, details: { url, heuristics, ai_analysis: ai.text, ollama_model: ai.model } })
+    return NextResponse.json({ legitimacy_score: score, classification, warnings: heuristics.warnings, forensics: { url_score: heuristics.urlScore, domain_score: heuristics.domainScore, ai_score: ai.score }, details: { url: normalizedUrl, heuristics, ai_analysis: ai.text, ollama_model: ai.model } })
   } catch (error: any) { return NextResponse.json({ error: error.message || "URL scan failed", legitimacy_score: 0, classification: "ERROR", warnings: ["Website scan failed"], forensics: { url_score: 0, domain_score: 0, ai_score: 0 } }, { status: 500 }) }
 }

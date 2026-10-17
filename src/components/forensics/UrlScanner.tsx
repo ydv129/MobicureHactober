@@ -7,12 +7,13 @@ export default function UrlScanner({ onResult }: Props) {
   const [url, setUrl] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const valid = /^https?:\/\/[^\s]+$/i.test(url.trim())
+  const valid = /^(https?:\/\/)?[a-z0-9.-]+\.[a-z]{2,}(\/[^\s]*)?$/i.test(url.trim())
   const scan = async () => {
-    if (!valid) { setError("Enter valid URL http:// or https://"); return }
+    if (!valid) { setError("Enter a valid domain or URL"); return }
     setError(""); setLoading(true)
     try {
-      const response = await fetch("/api/scan-url", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: url.trim() }) })
+      const normalized = /^https?:\/\//i.test(url.trim()) ? url.trim() : `https://${url.trim()}`
+      const response = await fetch("/api/scan-url", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: normalized }) })
       const data = await response.json()
       if (!response.ok) throw new Error(data.error)
       onResult(data)
